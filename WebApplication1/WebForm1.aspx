@@ -17,90 +17,203 @@
             </asp:DropDownList>
         </div>
 
-        <div style="height: 400px;width: 400px">
-            <canvas width="800" height="450" id="pi-chart"></canvas>
-            <canvas width="800" height="450" id="pi-data"></canvas>
+        <div style="height: 400px; width: 400px">
+            <canvas width="800" height="450" id="pi-chart-Customers"></canvas>
+            <canvas width="800" height="450" id="bar-chart-status"></canvas>
         </div>
-        <asp:HiddenField ID="hdnData" runat="server" />
-        <asp:HiddenField ID="hdnSingleData" runat="server" />
+        
+        <asp:HiddenField ID="hdnCustomers" runat="server" />
+        <asp:HiddenField ID="hdnSingleCustomer" runat="server" />
+        <asp:HiddenField ID="hdnAllStatus" runat="server" />
+        <asp:HiddenField ID="hdnStatus" runat="server" />
     </form>
 
 
     <script>
         $(function () {
-           
-
-
-            var strData = $("#hdnData").val();
-            var jsonData = JSON.parse(strData);
             
-            var labels = [];
-            var jobOrders = [];
-            var backgroundColor = [];
-            $.each(jsonData, function (index, data) {
-                labels.push(data.Name);
-                jobOrders.push(data.Order);
-                backgroundColor.push(getRandomColor());
-            });
-            alert(labels);
-            alert(jobOrders);
-            var pieOptions = {
-                type: 'pie',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: jobOrders,
-                            backgroundColor: backgroundColor,
-                            data: jobOrders,
-                        }
-                    ]
-                },
-                options: {
-                    title: {
-                        display: true,
-                        text: 'All Clients'
-                    },
-                    //legend: {
-                    //    display: false
-                    //},
-                    pieceLabel: {
-                        mode: 'value'
-                    }
-                }
-            };
-            var ctx = $("#pi-chart");
-            new Chart(ctx, pieOptions);
+            var strCustomers = $("#hdnCustomers").val();
+            var strSingleCustomer = $("#hdnSingleCustomer").val();
+            var strAllStatus = $("#hdnAllStatus").val();
+            var strStatus = $("#hdnStatus").val();
 
-            var strSingleData = $("#hdnSingleData").val();
-            var jsonSingleData = JSON.parse(strSingleData);
-            var pieSingleDataOption = {
-                type: 'pie',
-                data: {
-                    labels: [jsonSingleData.Name],
-                    datasets: [
-                        {
-                            label: [jsonSingleData.Order],
-                            backgroundColor: getRandomColor(),
-                            data: [[jsonSingleData.Order]],
-                        }
-                    ]
-                },
-                options: {
-                    title: {
-                        display: true,
-                        text: 'All Clients'
+            if (strStatus == "" || strStatus == "null") {
+                barChartForAllStatus(strAllStatus);
+            } else {
+                barChartForStatus(strStatus);
+            }
+           
+           
+            if (strSingleCustomer == "" || strSingleCustomer == "null") {
+                pieForAllCustomers(strCustomers);
+            } else {
+                pieForSingleCustomer(strSingleCustomer);
+            }
+
+            function pieForAllCustomers(strCustomers) {
+
+                var jsonCustomers = JSON.parse(strCustomers);
+                var labels = [];
+                var jobOrders = [];
+                var backgroundColor = [];
+                $.each(jsonCustomers, function (index, data) {
+                    labels.push(data.Name);
+                    jobOrders.push(data.JobOrders);
+                    backgroundColor.push(getRandomColor());
+                });
+
+                var pieOptionsForAllCustomers = {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: jobOrders,
+                                backgroundColor: backgroundColor,
+                                data: jobOrders,
+                            }
+                        ]
                     },
-                    //legend: {
-                    //    display: false
-                    //},
-                    pieceLabel: {
-                        mode: 'value'
+                    options: {
+                        title: {
+                            display: true,
+                            text: 'All Clients'
+                        },
+                        //legend: {
+                        //    display: false
+                        //},
+                        pieceLabel: {
+                            mode: 'value'
+                        }
                     }
+                };
+                var ctx = $("#pi-chart-Customers");
+                new Chart(ctx, pieOptionsForAllCustomers);
+            }
+
+            function pieForSingleCustomer(strSingleCustomer) {
+
+                var jsonSingleCustomer = JSON.parse(strSingleCustomer);
+                var pieOptionForSingleCustomer = {
+                    type: 'pie',
+                    data: {
+                        labels: [jsonSingleCustomer.Name],
+                        datasets: [
+                            {
+                                label: [jsonSingleCustomer.JobOrders],
+                                backgroundColor: getRandomColor(),
+                                data: [jsonSingleCustomer.JobOrders],
+                            }
+                        ]
+                    },
+                    options: {
+                        title: {
+                            display: true,
+                            text: 'Client'
+                        },
+                        //legend: {
+                        //    display: false
+                        //},
+                        pieceLabel: {
+                            mode: 'value'
+                        }
+                    }
+                };
+                var ctx = $("#pi-chart-Customers");
+                new Chart(ctx, pieOptionForSingleCustomer);
+            }
+            //----------------------------------------------------------------------------
+            //bar chart..
+
+
+            function barChartForAllStatus(strAllStatus) {
+
+                var jsAllStatus = JSON.parse(strAllStatus);
+                var joborders = [];
+                var statusLabels = [];
+                var backgroundColor = [];
+                $.each(jsAllStatus,function(index, data) {
+                    joborders.push(data.JobOrders);
+                    backgroundColor.push(getRandomColor());
+
+                    switch (data.StatusName) {
+                        case 1:
+                            statusLabels.push("Created");
+                            break;
+                        case 2:
+                            statusLabels.push("Initiated");
+                            break;
+                        case 3:
+                            statusLabels.push("In Progress");
+                            break;
+                    default:
+                    }
+                });
+                var barOptionsForStatus = {
+                    type: 'bar',
+                    data: {
+                        labels: statusLabels,
+                        datasets: [
+                          {
+                              label: "Status",
+                              backgroundColor: backgroundColor,
+                              data: joborders
+                          }
+                        ]
+                    },
+                    options: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'All Status'
+                        }
+                    }
+                };
+                var ctx = $("#bar-chart-status");
+                new Chart(ctx, barOptionsForStatus);
+            }
+            function barChartForStatus(strStatus) {
+
+                var jsStatus = JSON.parse(strStatus);
+                var statusName="";
+                switch (jsStatus.StatusName) {
+                    case 1:
+                        statusName="Created";
+                        break;
+                    case 2:
+                        statusName="Initiated";
+                        break;
+                    case 3:
+                        statusName="In Progress";
+                        break;
+                    default:
                 }
-            };
-            var dataCtx = $("#pi-data");
-            new Chart(dataCtx, pieSingleDataOption);
+                var barOptionsForStatus = {
+                    type: 'bar',
+                    data: {
+                        labels: [statusName],
+                        datasets: [
+                          {
+                              label: "Status",
+                              backgroundColor: getRandomColor(),
+                              data: [jsStatus.JobOrders]
+                          }
+                        ]
+                    },
+                    options: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'All Status'
+                        }
+                    }
+                };
+                var ctx = $("#bar-chart-status");
+                new Chart(ctx, barOptionsForStatus);
+            }
+
+
+
 
             function getRandomColor() {
                 var letters = '0123456789ABCDEF';

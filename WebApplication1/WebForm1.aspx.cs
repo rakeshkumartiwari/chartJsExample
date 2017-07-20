@@ -12,13 +12,18 @@ namespace WebApplication1
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            hdnAllStatus.Value = string.Empty;
+            hdnCustomers.Value = string.Empty;
             var js = new JavaScriptSerializer();
-            hdnData.Value = js.Serialize(AllData());
+            var allStatus = GetAllStatus();
+            hdnAllStatus.Value = js.Serialize(allStatus);
+            var allCustomers = GetAllCustomers();
+            hdnCustomers.Value = js.Serialize(allCustomers);
             if (!IsPostBack)
             {
-                DropDownList1.DataValueField = "Id";
+                DropDownList1.DataValueField = "CustomerId";
                 DropDownList1.DataTextField = "Name";
-                DropDownList1.DataSource = AllData();
+                DropDownList1.DataSource = GetAllCustomers();
                 DropDownList1.DataBind();
                 DropDownList1.Items.Insert(0, new ListItem("Select name", "0"));
 
@@ -35,53 +40,102 @@ namespace WebApplication1
             };
         }
 
-        public List<Data> AllData()
+        public List<Customers> GetAllCustomers()
         {
-            var data = new List<Data>
+            var customers = new List<Customers>
             {
-                new Data
+                new Customers
                 {
-                    Id = 1,
+                    CustomerId = 123,
                     Name = "Rakesh",
-                    Order = 50
+                    JobOrders = 50
                 },
-                 new Data
+                 new Customers
                 {
-                    Id = 2,
+                    CustomerId = 456,
                     Name = "Ritesh",
-                    Order = 40
+                    JobOrders = 40
                 },
-                 new Data
+                 new Customers
                 {
-                    Id = 3,
+                    CustomerId = 789,
                     Name = "Rupesh",
-                    Order = 30
+                    JobOrders = 30
                 }
             };
-            return data;
+            return customers;
         }
 
-        public Data DataById(string name)
+        public Customers GetCustomerById(int customerId)
         {
-            var allData = AllData();
-            var data = allData.SingleOrDefault(c => c.Name == name);
-            return data;
+            var allCustomers = GetAllCustomers();
+            var customer = allCustomers.SingleOrDefault(c => c.CustomerId == customerId);
+            return customer;
+        }
+
+        public List<Status> GetAllStatus()
+        {
+            var allSatatus = new List<Status>
+            {
+                new Status
+                {
+                    CustomerId = 123,
+                    JobOrders = 3,
+                    StatusName = 1
+                },
+                new Status
+                {
+                    CustomerId = 456,
+                    JobOrders = 3,
+                    StatusName = 2
+                },
+                new Status
+                {
+                    CustomerId = 789,
+                    JobOrders = 1,
+                    StatusName = 3
+                },
+            };
+            return allSatatus;
+        }
+
+        public Status GetStatusByCustomerId(int customerId)
+        {
+            var allStatus = GetAllStatus();
+            var status = allStatus.SingleOrDefault(s => s.CustomerId == customerId);
+            return status;
         }
         protected void DropDownList1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var data = DataById(DropDownList1.SelectedItem.Text);
+            hdnSingleCustomer.Value = string.Empty;
             var js = new JavaScriptSerializer();
-            var jsonData = js.Serialize(data);
-            hdnSingleData.Value = jsonData;
+            int selectedCustomer = Convert.ToInt32(DropDownList1.SelectedValue);
+            var customer = GetCustomerById(selectedCustomer);
+
+            var status = GetStatusByCustomerId(selectedCustomer);
+            hdnStatus.Value = js.Serialize(status);
+            var jsonCustomer = js.Serialize(customer);
+            hdnSingleCustomer.Value = jsonCustomer;
+
+
         }
     }
 
- 
-    public class Data
+
+    public class Customers
     {
-        public int Id { get; set; }
+        public int CustomerId { get; set; }
         public string Name { get; set; }
-        public int Order { get; set; }
+        public int JobOrders { get; set; }
         public string BackgroundColor { get; set; }
     }
+
+    public class Status
+    {
+        public int CustomerId { get; set; }
+        public int JobOrders { get; set; }
+        public int StatusName { get; set; }
+        public string BackgroundColor { get; set; }
+    }
+
 }
