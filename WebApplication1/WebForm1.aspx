@@ -20,8 +20,10 @@
         <div style="height: 400px; width: 400px">
             <canvas width="800" height="450" id="pi-chart-Customers"></canvas>
             <canvas width="800" height="450" id="bar-chart-status"></canvas>
+            <canvas width="800" height="450" id="bar-chart-customer-status"></canvas>
+
         </div>
-        
+
         <asp:HiddenField ID="hdnCustomers" runat="server" />
         <asp:HiddenField ID="hdnSingleCustomer" runat="server" />
         <asp:HiddenField ID="hdnAllStatus" runat="server" />
@@ -31,25 +33,27 @@
 
     <script>
         $(function () {
-            
+
             var strCustomers = $("#hdnCustomers").val();
             var strSingleCustomer = $("#hdnSingleCustomer").val();
             var strAllStatus = $("#hdnAllStatus").val();
             var strStatus = $("#hdnStatus").val();
+
+            barChartForMultipleData(strAllStatus, strCustomers);
 
             if (strStatus == "" || strStatus == "null") {
                 barChartForAllStatus(strAllStatus);
             } else {
                 barChartForStatus(strStatus);
             }
-           
-           
+
+
             if (strSingleCustomer == "" || strSingleCustomer == "null") {
                 pieForAllCustomers(strCustomers);
             } else {
                 pieForSingleCustomer(strSingleCustomer);
             }
-
+            //--------------------------pie chart-------------------------------------------------------------
             function pieForAllCustomers(strCustomers) {
 
                 var jsonCustomers = JSON.parse(strCustomers);
@@ -122,17 +126,16 @@
                 var ctx = $("#pi-chart-Customers");
                 new Chart(ctx, pieOptionForSingleCustomer);
             }
-            //----------------------------------------------------------------------------
-            //bar chart..
-
-
+            //--------------------------bar chart-------------------------------------------------------------
+          
             function barChartForAllStatus(strAllStatus) {
 
                 var jsAllStatus = JSON.parse(strAllStatus);
                 var joborders = [];
                 var statusLabels = [];
                 var backgroundColor = [];
-                $.each(jsAllStatus,function(index, data) {
+               
+                $.each(jsAllStatus, function (index, data) {
                     joborders.push(data.JobOrders);
                     backgroundColor.push(getRandomColor());
 
@@ -145,8 +148,10 @@
                             break;
                         case 3:
                             statusLabels.push("In Progress");
+                        case 4:
+                            statusLabels.push("Closed");
                             break;
-                    default:
+                        default:
                     }
                 });
                 var barOptionsForStatus = {
@@ -155,8 +160,8 @@
                         labels: statusLabels,
                         datasets: [
                           {
-                              label: "Status",
-                              backgroundColor: backgroundColor,
+                              label: statusLabels,
+                              backgroundColor: ["#A569BD", "#3498DB", "#EB984E", "#F1948A"],
                               data: joborders
                           }
                         ]
@@ -166,7 +171,15 @@
                         title: {
                             display: true,
                             text: 'All Status'
-                        }
+                        }, scales: {
+                            
+                            yAxes: [{
+                               ticks: {
+                                   beginAtZero:true
+
+                               }
+                            }],
+                        }, // scales
                     }
                 };
                 var ctx = $("#bar-chart-status");
@@ -175,16 +188,16 @@
             function barChartForStatus(strStatus) {
 
                 var jsStatus = JSON.parse(strStatus);
-                var statusName="";
+                var statusName = "";
                 switch (jsStatus.StatusName) {
                     case 1:
-                        statusName="Created";
+                        statusName = "Created";
                         break;
                     case 2:
-                        statusName="Initiated";
+                        statusName = "Initiated";
                         break;
                     case 3:
-                        statusName="In Progress";
+                        statusName = "In Progress";
                         break;
                     default:
                 }
@@ -195,7 +208,7 @@
                         datasets: [
                           {
                               label: "Status",
-                              backgroundColor: getRandomColor(),
+                              backgroundColor: ["#A569BD", "#3498DB", "#3498DB", "#EB984E"],
                               data: [jsStatus.JobOrders]
                           }
                         ]
@@ -205,15 +218,84 @@
                         title: {
                             display: true,
                             text: 'All Status'
-                        }
+                        },
+                        scales: {
+
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+
+                                }
+                            }],
+                        }, // scales
                     }
                 };
                 var ctx = $("#bar-chart-status");
                 new Chart(ctx, barOptionsForStatus);
             }
+            //--------------------------show two different data in bar chart-----------------------------------
+            function barChartForMultipleData(strAllStatus, strCustomers) {
+
+                var jsCustomers = JSON.parse(strCustomers);
+                var jsAllStatus = JSON.parse(strAllStatus);
+                var labels = [];
+                var joborders = [];
+                var joborderStatus = [];
+                var backgroundColor = [];
+                var backgroundColor1 = [];
+               
+               
 
 
+                $.each(jsCustomers, function (index, data) {
+                    joborders.push(data.JobOrders);
+                    labels.push(data.Name);
+                    backgroundColor.push(getRandomColor());
+                });
 
+                $.each(jsAllStatus, function (index, data) {
+                    joborderStatus.push(data.JobOrders);
+                    backgroundColor1.push(getRandomColor1());
+                });      
+                var barOptionsForCustomerAndStatus = {
+                    type: 'bar',
+
+                    data: {
+                        labels: labels,
+                        datasets: [
+                          {
+                              label: "Customers",
+                              backgroundColor: "#45B39D",
+                              data: joborders
+                          },
+                          {
+                              label: "Status",
+                              backgroundColor: "#A3E4D7",
+                              data: joborderStatus
+                          }
+                        ]
+
+                    },
+                    options: {
+                        legend: { display: true },
+                        title: {
+                            display: true,
+                            text: 'All Status'
+                        }, scales: {
+                            xAxes: [{
+                                stacked: true,
+                                gridLines: { display: false },
+                            }],
+                            yAxes: [{
+                                stacked: true,
+
+                            }],
+                        }, // scales
+                    }
+                };
+                var ctx = $("#bar-chart-customer-status");
+                new Chart(ctx, barOptionsForCustomerAndStatus);
+            }
 
             function getRandomColor() {
                 var letters = '0123456789ABCDEF';
@@ -223,7 +305,15 @@
                 }
                 return color;
             }
-
+            function getRandomColor1() {
+                var letters = '0123456789ABCDEF';
+                var color = '#';
+                for (var i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+           
         });
     </script>
 </body>

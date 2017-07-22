@@ -48,19 +48,19 @@ namespace WebApplication1
                 {
                     CustomerId = 123,
                     Name = "Rakesh",
-                    JobOrders = 50
+                    JobOrders = 3
                 },
                  new Customers
                 {
                     CustomerId = 456,
                     Name = "Ritesh",
-                    JobOrders = 40
+                    JobOrders = 3
                 },
                  new Customers
                 {
                     CustomerId = 789,
                     Name = "Rupesh",
-                    JobOrders = 30
+                    JobOrders = 1
                 }
             };
             return customers;
