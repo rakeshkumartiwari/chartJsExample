@@ -296,7 +296,7 @@
                 var ctx = $("#bar-chart-customer-status");
                 new Chart(ctx, barOptionsForCustomerAndStatus);
             }
-            //------------------------------------Create Random Color---------------------------------------------------------
+            //------------------------------------Create Random Color-----------------------------------------------------
             function getRandomColor() {
                 var letters = '0123456789ABCDEF';
                 var color = '#';
